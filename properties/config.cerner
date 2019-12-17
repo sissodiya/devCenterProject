@@ -1,0 +1,168 @@
+Test
+{
+    MadHatter
+    {
+        Principal
+        {
+            Name = "junituser"
+        }
+    }
+}
+
+System
+{
+    Enterprise
+    { 
+         PrimaryDomain = "surround"
+         Domain
+         {
+            test
+            {
+                 Principal
+                 {
+                     Authority
+                     {
+                         User = "system"
+                         Password = "system"
+                     }
+                 }
+             }
+         }
+         Domain
+         {
+             surround
+             {
+                 Principal
+                 {
+                     Authority
+                     {
+                         User = "junituser"
+                         Password = "junituser"
+                     }
+                 }
+             }
+         }
+         Domain
+         {
+             web
+             {
+                 Principal
+                 {
+                     Authority
+                     {
+                         User = "junituser"
+                         Password = "junituser"
+                     }
+                 }
+             }
+         }
+    }
+      
+     
+    Data/Access/DefaultAuthority = "surround"
+     
+    JDBC
+    {
+        Source
+        {
+            surround
+            {
+                Type = "Oracle"
+                Ports
+                {
+                    Port
+                    {
+
+                        URL = "jdbc:oracle:thin:v500/v500@ipsurrounddb.ip.devcerner.net:1521:surd1"
+                        UserName = "v500"
+                        Password = "v500"
+                    }
+                }
+            }
+            web
+            {
+                Type = "Oracle"
+                Ports
+                {
+                    Port
+                    {
+
+                        URL = "jdbc:oracle:thin:v500/v500@ipldb02.northamerica.cerner.net:1521:web2"
+                        UserName = "v500"
+                        Password = "v500"
+                    }
+                }
+            }
+            
+            test
+            {
+                Type = "Oracle"
+                Ports
+                {
+                    Port
+                    {
+
+                        URL = "jdbc:oracle:thin:v500/v500@ipldb03.northamerica.cerner.net:1521:surd1"
+                        UserName = "v500"
+                        Password = "v500"
+                    }
+                }
+            }
+            embeddedderby
+            {
+                Type = "EmbeddedDerby"
+                Ports
+                {
+                    Port
+                    {
+                        Name = "BloodInventoryTransferDB;create=true"
+		    }
+		}
+	    }        
+        }
+    }
+    
+   Coding
+ 	{
+  		System
+  		{
+   			Instance
+   			{
+    			surround
+    			{
+     				Source = "EISService"
+        			{
+          				Principal = "junituser"
+        			}
+    			}
+   			}
+  		}  
+ 	}
+        
+    Cache
+    {
+        Instance
+        {
+            BloodInventoryTransfer.OrderSynonym
+            {
+                    Kernel = "LFU"
+                    {
+                        Policy
+                        {
+                            CacheLimit = 128
+                        }
+                    }
+                    Authority = "Expiry"
+                    {
+                        Policy
+                        {
+                            ExpiryPeriod = 3600
+                        }
+                    }
+                    Storage = "Heap"
+            }
+	    
+
+        }
+    }
+}

@@ -25,5 +25,6 @@
 	<classpathentry kind="lib" path="C:/Users/AS077061/Downloads/ojdbc-full/OJDBC-Full/simplefan.jar"/>
 	<classpathentry kind="lib" path="C:/Users/AS077061/Downloads/ojdbc-full/OJDBC-Full/ucp.jar"/>
 	<classpathentry kind="lib" path="C:/Users/AS077061/Downloads/ojdbc-full/OJDBC-Full/xdb6.jar"/>
+	<classpathentry kind="lib" path="C:/Users/AS077061/Downloads/rs2xml.jar"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>

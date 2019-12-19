@@ -4,50 +4,145 @@ import java.sql.DriverManager;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
-import java.util.Properties;
 
 public class JdbcOracleConnection {
+	private static final String activityForMicrobiology = "696";
+	private static final String queryForInstrumentName = "SELECT instr_name FROM lab_instrument "
+			+ "WHERE service_resource_cd IN "
+			+ "(select SERVICE_RESOURCE_CD from SERVICE_RESOURCE sr where sr.ACTIVITY_TYPE_CD="
+			+activityForMicrobiology
+			+ ")";
+	private static final String queryForDispatchDownload = "SELECT sr.dispatch_download_ind FROM service_resource sr,"
+			+ "lab_instrument li WHERE li.instr_name='MICRO_VIDYA'"
+			+ "AND sr.service_resource_cd = li.service_resource_cd";
 	
+	private static final String queryForCollectedDownload = "SELECT sr.collected_download_ind FROM service_resource sr,"
+			+ "lab_instrument li WHERE li.instr_name='MICRO_VIDYA'"
+			+ "AND sr.service_resource_cd = li.service_resource_cd";
+	
+	private static final String queryForR_Mode = "SELECT sr.oper_mode FROM service_resource sr,"
+			+ "lab_instrument li WHERE li.instr_name='MICRO_VIDYA'"
+			+ "AND sr.service_resource_cd = li.service_resource_cd";
+	
+	
+	protected ResultSet rsInstName;
+	protected ResultSet rsDispDown;
+	protected ResultSet rsCollDown;
+	protected ResultSet rsR_Mode;
+	
+	int resultSetSize = 0;
+	int index = 0;
+	
+	String[] instrumetNameArray = new String [100];
+	String[] dispatchDownloadArray = new String [100];
+	String[] collectedDownloadArray = new String [100];
+	String[] rModeArray = new String [100]; 
+	String[] instrumetNameArrayFinal ;
 	
 	public void databaseAction() {
-		 Connection conn2 = null;
+		 
+		Connection conn = null;
+		Statement stmtInstName = null;
+		Statement stmtDispatchDownload = null;
+		Statement stmtCollectedDownload = null;
+		Statement stmtR_Mode = null;
 		 
 	        try {
 	            
-	            Class.forName("oracle.jdbc.OracleDriver");
-	 
-	            String dbURL2 = "jdbc:oracle:thin:@ipsurrounddb.ip.devcerner.net:1521:surd1";
+	            //Driver Registration
+				Class.forName("oracle.jdbc.OracleDriver");
+				
+				//Connection String
+	           final String dbURL2 = "jdbc:oracle:thin:@ipsurrounddb.ip.devcerner.net:1521:surd1";
+	           final String username = "v500";
+	           final String password = "v500";
+				
+	            //Establishing Connection
+	            conn = DriverManager.getConnection(dbURL2, username, password);
 	            
-	            String username = "v500";
-	            String password = "v500";
+	            if (conn != null) {
+	                System.out.println("Connected to Database Surround");
+	            }
+	            //Querying Database
+
+	             stmtInstName = conn.createStatement();
 	            
-	            conn2 = DriverManager.getConnection(dbURL2, username, password);
-	            
-	            
-	            if (conn2 != null) {
-	                System.out.println("Connected with connection #2");
+	            boolean statusForInstName = stmtInstName.execute(queryForInstrumentName);
+	            if(statusForInstName){
+	                //query is a select query.
+	                 rsInstName = stmtInstName.executeQuery(queryForInstrumentName);
+	                 
+	                while(rsInstName.next()){
+	                	resultSetSize++;
+	                	instrumetNameArray [index] = rsInstName.getString(1);
+	                	index++;	                	
+	                }
+	                instrumetNameArrayFinal = new String[resultSetSize];
+	                
+	                for(int i=0;i<resultSetSize;i++) {
+	                	 if(instrumetNameArray[i] != null) {
+	 	                	instrumetNameArrayFinal [i] = instrumetNameArray[i];
+	 	                }else {
+	 	                	instrumetNameArrayFinal [i] = "xxx";
+	 	                }
+	                }
+	               
+	                
+	                System.out.println("resultSize :"+ resultSetSize);
+	                
+	                rsInstName.close();
+	            } else {
+	                //query can be update or any query apart from select query
 	            }
 	            
-	            Statement stmt = conn2.createStatement();
-	            
-	            String query = "select SERVICE_RESOURCE_CD from SERVICE_RESOURCE sr where sr.activity_type_cd = 696";
-	            
-	            //select INSTR_NAME from SERVICE_RESOURCE sr where sr.activity_type_cd = 696
-	            //select INSTR_NAME from LAB_INSTRUMENT where UPDT_TASK = 1234703
-	            //select * from SERVICE_RESOURCE sr where sr.activity_type_cd = 696
-	            
-	            boolean status = stmt.execute(query);
-	            if(status){
+	            stmtDispatchDownload = conn.createStatement();
+	            boolean statusForDispDown = stmtDispatchDownload.execute(queryForDispatchDownload);
+	            if(statusForDispDown){
 	                //query is a select query.
-	                ResultSet rs = stmt.getResultSet();
-	                while(rs.next()){
-	                    System.out.println(rs.getString(1));
+	            	rsDispDown = stmtDispatchDownload.executeQuery(queryForDispatchDownload);
+	                 
+	                while(rsDispDown.next()){
+	                	
+	                	System.out.println("Dispatch Download : " + rsDispDown.getString(1));
+	    	                	
 	                }
-	                rs.close();
+	                
+	                rsDispDown.close();
 	            } else {
 	                //query can be update or any query apart from select query
 	            }
 	 
+	            stmtCollectedDownload = conn.createStatement();
+	            boolean statusForCollDown = stmtCollectedDownload.execute(queryForCollectedDownload);
+	            if(statusForCollDown){
+	                //query is a select query.
+	            	rsCollDown = stmtCollectedDownload.executeQuery(queryForCollectedDownload);
+	                 
+	                while(rsCollDown.next()){
+	                	System.out.println("Collected Download : " + rsCollDown.getString(1));     	
+	                }
+	                rsCollDown.close();
+	            } else {
+	                //query can be update or any query apart from select query
+	            }
+	            
+	            stmtR_Mode = conn.createStatement();
+	            boolean statusForR_Mode = stmtR_Mode.execute(queryForR_Mode);
+	            if(statusForR_Mode){
+	                //query is a select query.
+	            	rsR_Mode = stmtR_Mode.executeQuery(queryForR_Mode);
+	                 
+	                while(rsR_Mode.next()){
+	                	
+	                	System.out.println("R Mode : " + rsR_Mode.getString(1));
+	    	                	
+	                }
+	                
+	                rsR_Mode.close();
+	            } else {
+	                //query can be update or any query apart from select query
+	            }
+	            
 	 
 	        } catch (ClassNotFoundException ex) {
 	            ex.printStackTrace();
@@ -55,8 +150,8 @@ public class JdbcOracleConnection {
 	            ex.printStackTrace();
 	        } finally {
 	            try {
-	                if (conn2 != null && !conn2.isClosed()) {
-	                    conn2.close();
+	                if (conn != null && !conn.isClosed()) {
+	                    conn.close();
 	                }
 	            } catch (SQLException ex) {
 	                ex.printStackTrace();
@@ -67,5 +162,6 @@ public class JdbcOracleConnection {
     public static void main(String[] args) {
     	
        System.out.println("called JdbcOracleConnection main()");
-    }
+       
+		}
 }
